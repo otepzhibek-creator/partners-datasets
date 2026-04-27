@@ -105,7 +105,7 @@ def update_partner(pid: int, body: PartnerUpdate, db: Session = Depends(get_db))
     p = db.query(Partner).filter(Partner.id == pid).first()
     if not p:
         raise HTTPException(404)
-    for k, v in body.model_dump(exclude_none=True).items():
+    for k, v in body.dict(exclude_none=True).items():
         setattr(p, k, v)
     db.commit()
     return _to_dict(p)
@@ -113,7 +113,7 @@ def update_partner(pid: int, body: PartnerUpdate, db: Session = Depends(get_db))
 
 @app.post("/api/partners")
 def create_partner(body: PartnerCreate, db: Session = Depends(get_db)):
-    data = body.model_dump()
+    data = body.dict()
     msg = generate_message(data["company_name"], data["category"], data.get("contact_name"), data.get("use_case") or "")
     p = Partner(**data, generated_message=msg, status="new")
     db.add(p)
