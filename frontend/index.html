@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Freedom Speech — Partner Dashboard</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f0f4f8;color:#1a202c}
+.header{background:linear-gradient(135deg,#1a365d,#2b6cb0);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.header h1{font-size:20px;font-weight:700}
+.header span{font-size:13px;opacity:.8}
+.stats{display:flex;gap:12px;padding:16px 24px;flex-wrap:wrap}
+.stat{background:#fff;border-radius:10px;padding:12px 20px;min-width:120px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.stat .num{font-size:28px;font-weight:700;color:#2b6cb0}
+.stat .lbl{font-size:12px;color:#718096;margin-top:2px}
+.tabs{display:flex;gap:4px;padding:0 24px;border-bottom:2px solid #e2e8f0;background:#fff}
+.tab{padding:12px 24px;cursor:pointer;font-weight:600;font-size:14px;color:#718096;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s}
+.tab.active{color:#2b6cb0;border-color:#2b6cb0}
+.controls{display:flex;gap:10px;padding:16px 24px;flex-wrap:wrap;align-items:center}
+.search{flex:1;min-width:200px;padding:8px 14px;border:1px solid #cbd5e0;border-radius:8px;font-size:14px;outline:none}
+.search:focus{border-color:#2b6cb0}
+select{padding:8px 12px;border:1px solid #cbd5e0;border-radius:8px;font-size:14px;background:#fff;cursor:pointer;outline:none}
+.btn{padding:8px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:#2b6cb0;color:#fff}
+.btn-primary:hover{background:#2c5282}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:6px}
+.btn-ghost{background:#edf2f7;color:#4a5568}
+.btn-ghost:hover{background:#e2e8f0}
+.btn-green{background:#38a169;color:#fff}
+.btn-green:hover{background:#276749}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;padding:0 24px 24px}
+.card{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:16px;display:flex;flex-direction:column;gap:10px;border-left:4px solid #cbd5e0}
+.card.high{border-color:#e53e3e}
+.card.medium{border-color:#dd6b20}
+.card.low{border-color:#38a169}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.company{font-size:16px;font-weight:700;color:#1a202c}
+.website{font-size:12px;color:#4299e1;text-decoration:none}
+.website:hover{text-decoration:underline}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px}
+.badge-cat{background:#ebf8ff;color:#2b6cb0}
+.badge-status-new{background:#fefcbf;color:#744210}
+.badge-status-contacted{background:#bee3f8;color:#2a4365}
+.badge-status-in_progress{background:#c6f6d5;color:#1c4532}
+.badge-status-closed{background:#e2e8f0;color:#4a5568}
+.badge-status-rejected{background:#fed7d7;color:#742a2a}
+.badge-pri-high{background:#fff5f5;color:#c53030}
+.badge-pri-medium{background:#fffaf0;color:#c05621}
+.badge-pri-low{background:#f0fff4;color:#276749}
+.contact-block{background:#f7fafc;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.contact-row{display:flex;align-items:center;gap:8px;font-size:13px}
+.contact-row .icon{font-size:15px;width:18px;text-align:center}
+.contact-val{color:#2d3748;flex:1;word-break:break-all}
+.copy-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:2px 4px;border-radius:4px;color:#718096;transition:.15s}
+.copy-btn:hover{background:#e2e8f0;color:#2b6cb0}
+.msg-preview{background:#f0fff4;border:1px solid #c6f6d5;border-radius:8px;padding:10px 12px;font-size:12px;color:#2d3748;white-space:pre-wrap;max-height:100px;overflow:hidden;cursor:pointer;position:relative}
+.msg-preview:hover{border-color:#68d391}
+.msg-preview::after{content:"Нажмите для полного текста";position:absolute;bottom:6px;right:8px;font-size:10px;color:#38a169;font-weight:600}
+.card-actions{display:flex;gap:8px;flex-wrap:wrap}
+.status-select{padding:5px 8px;border:1px solid #cbd5e0;border-radius:6px;font-size:12px;background:#fff;cursor:pointer}
+.empty{text-align:center;padding:60px 24px;color:#718096}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px}
+.modal{background:#fff;border-radius:12px;padding:24px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:16px}
+.modal-msg{white-space:pre-wrap;font-size:14px;line-height:1.7;color:#2d3748;background:#f7fafc;border-radius:8px;padding:16px}
+.modal-footer{display:flex;gap:10px;margin-top:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-size:12px;font-weight:600;color:#4a5568}
+.form-group input,.form-group select,.form-group textarea{padding:8px 10px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;font-family:inherit;outline:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#2b6cb0}
+.toast{position:fixed;bottom:24px;right:24px;background:#2d3748;color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:500;z-index:9999;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.use-case{font-size:12px;color:#718096;font-style:italic}
+.dataset-info{font-size:12px;color:#553c9a;background:#faf5ff;border-radius:6px;padding:6px 10px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const API = "";
+
+function toast(msg) {
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2000);
+}
+
+function copy(text) {
+  navigator.clipboard.writeText(text).then(() => toast("Скопировано!"));
+}
+
+const STATUS_LABELS = {new:"Новый",contacted:"Написали",in_progress:"В процессе",closed:"Закрыт",rejected:"Отклонён"};
+const PRI_LABELS = {high:"🔴 Высокий",medium:"🟠 Средний",low:"🟢 Низкий"};
+
+function StatBar({stats}) {
+  const items = [
+    {num: stats.total, lbl: "Всего"},
+    {num: stats.b2b, lbl: "B2B партнёры"},
+    {num: stats.dataset, lbl: "Датасеты"},
+    {num: stats.new, lbl: "Новые"},
+    {num: stats.contacted, lbl: "Написали"},
+    {num: stats.in_progress, lbl: "В процессе"},
+    {num: stats.high, lbl: "Высокий приор."},
+  ];
+  return (
+    <div className="stats">
+      {items.map(i => (
+        <div className="stat" key={i.lbl}>
+          <div className="num">{i.num}</div>
+          <div className="lbl">{i.lbl}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ContactRow({icon, value, label}) {
+  if (!value) return null;
+  return (
+    <div className="contact-row">
+      <span className="icon">{icon}</span>
+      <span className="contact-val">{label ? <><b>{label}:</b> </> : ""}{value}</span>
+      <button className="copy-btn" onClick={() => copy(value)} title="Копировать">📋</button>
+    </div>
+  );
+}
+
+function PartnerCard({p, onStatusChange, onViewMsg, onEdit}) {
+  return (
+    <div className={`card ${p.priority}`}>
+      <div className="card-top">
+        <div>
+          <div className="company">{p.company_name}</div>
+          {p.website && <a className="website" href={`https://${p.website}`} target="_blank" rel="noreferrer">{p.website}</a>}
+        </div>
+        <div className="badges">
+          <span className={`badge badge-status-${p.status}`}>{STATUS_LABELS[p.status]||p.status}</span>
+          <span className={`badge badge-pri-${p.priority}`}>{PRI_LABELS[p.priority]||p.priority}</span>
+        </div>
+      </div>
+
+      <div className="badges">
+        <span className="badge badge-cat">📁 {p.category}</span>
+        {p.partner_type === "dataset" && p.dataset_types && (
+          <span className="badge" style={{background:"#faf5ff",color:"#553c9a"}}>🗂 {p.dataset_types}</span>
+        )}
+        {p.partner_type === "dataset" && p.dataset_language && (
+          <span className="badge" style={{background:"#f0fff4",color:"#276749"}}>🌐 {p.dataset_language}</span>
+        )}
+      </div>
+
+      {p.use_case && <div className="use-case">💡 {p.use_case}</div>}
+
+      <div className="contact-block">
+        {p.contact_name && (
+          <div className="contact-row">
+            <span className="icon">👤</span>
+            <span className="contact-val"><b>{p.contact_name}</b>{p.contact_position ? ` — ${p.contact_position}` : ""}</span>
+          </div>
+        )}
+        <ContactRow icon="📧" value={p.contact_email} />
+        <ContactRow icon="📞" value={p.contact_phone} />
+        <ContactRow icon="💼" value={p.contact_linkedin} />
+        <ContactRow icon="✈️" value={p.contact_telegram} />
+        <ContactRow icon="💬" value={p.contact_whatsapp} />
+        {!p.contact_email && !p.contact_phone && !p.contact_linkedin && !p.contact_telegram && (
+          <div className="contact-row" style={{color:"#a0aec0",fontSize:"12px"}}>⚠️ Контакты не добавлены</div>
+        )}
+      </div>
+
+      {p.generated_message && (
+        <div className="msg-preview" onClick={() => onViewMsg(p)}>
+          {p.generated_message}
+        </div>
+      )}
+
+      <div className="card-actions">
+        <select
+          className="status-select"
+          value={p.status}
+          onChange={e => onStatusChange(p.id, e.target.value)}
+        >
+          {Object.entries(STATUS_LABELS).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
+        </select>
+        <button className="btn btn-sm btn-ghost" onClick={() => onViewMsg(p)}>📋 Сообщение</button>
+        <button className="btn btn-sm btn-ghost" onClick={() => onEdit(p)}>✏️</button>
+      </div>
+    </div>
+  );
+}
+
+function MessageModal({partner, onClose}) {
+  if (!partner) return null;
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <h2>Сообщение для {partner.company_name}</h2>
+        <div className="modal-msg">{partner.generated_message}</div>
+        <div className="modal-footer">
+          <button className="btn btn-primary" onClick={() => copy(partner.generated_message)}>📋 Копировать</button>
+          {partner.contact_email && (
+            <button className="btn btn-ghost btn-sm" onClick={() => copy(partner.contact_email)}>📧 Email</button>
+          )}
+          {partner.contact_phone && (
+            <button className="btn btn-ghost btn-sm" onClick={() => copy(partner.contact_phone)}>📞 Телефон</button>
+          )}
+          {partner.contact_linkedin && (
+            <a className="btn btn-ghost btn-sm" href={`https://${partner.contact_linkedin}`} target="_blank" rel="noreferrer">💼 LinkedIn</a>
+          )}
+          {partner.contact_telegram && (
+            <button className="btn btn-ghost btn-sm" onClick={() => copy(partner.contact_telegram)}>✈️ Telegram</button>
+          )}
+          <button className="btn btn-ghost" onClick={onClose}>Закрыть</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EditModal({partner, onClose, onSave}) {
+  const [form, setForm] = React.useState(partner || {});
+  const set = (k, v) => setForm(f => ({...f, [k]: v}));
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <h2>✏️ Редактировать: {partner?.company_name}</h2>
+        <div className="form-grid">
+          <div className="form-group"><label>Контактное лицо</label><input value={form.contact_name||""} onChange={e=>set("contact_name",e.target.value)}/></div>
+          <div className="form-group"><label>Должность</label><input value={form.contact_position||""} onChange={e=>set("contact_position",e.target.value)}/></div>
+          <div className="form-group"><label>Email</label><input value={form.contact_email||""} onChange={e=>set("contact_email",e.target.value)}/></div>
+          <div className="form-group"><label>Телефон</label><input value={form.contact_phone||""} onChange={e=>set("contact_phone",e.target.value)}/></div>
+          <div className="form-group full"><label>LinkedIn</label><input value={form.contact_linkedin||""} onChange={e=>set("contact_linkedin",e.target.value)}/></div>
+          <div className="form-group"><label>Telegram</label><input value={form.contact_telegram||""} onChange={e=>set("contact_telegram",e.target.value)}/></div>
+          <div className="form-group"><label>WhatsApp</label><input value={form.contact_whatsapp||""} onChange={e=>set("contact_whatsapp",e.target.value)}/></div>
+          <div className="form-group"><label>Статус</label>
+            <select value={form.status||"new"} onChange={e=>set("status",e.target.value)}>
+              {Object.entries(STATUS_LABELS).map(([k,v])=><option key={k} value={k}>{v}</option>)}
+            </select>
+          </div>
+          <div className="form-group"><label>Приоритет</label>
+            <select value={form.priority||"medium"} onChange={e=>set("priority",e.target.value)}>
+              <option value="high">Высокий</option><option value="medium">Средний</option><option value="low">Низкий</option>
+            </select>
+          </div>
+          <div className="form-group full"><label>Заметки</label><textarea rows={3} value={form.notes||""} onChange={e=>set("notes",e.target.value)}/></div>
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-primary" onClick={()=>onSave(partner.id, form)}>Сохранить</button>
+          <button className="btn btn-ghost" onClick={onClose}>Отмена</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AddModal({tab, categories, onClose, onAdd}) {
+  const [form, setForm] = React.useState({partner_type: tab, priority:"medium", category: categories[0]||""});
+  const set = (k,v) => setForm(f=>({...f,[k]:v}));
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <h2>➕ Добавить партнёра</h2>
+        <div className="form-grid">
+          <div className="form-group full"><label>Название компании *</label><input value={form.company_name||""} onChange={e=>set("company_name",e.target.value)}/></div>
+          <div className="form-group"><label>Категория</label>
+            <select value={form.category||""} onChange={e=>set("category",e.target.value)}>
+              {categories.map(c=><option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div className="form-group"><label>Приоритет</label>
+            <select value={form.priority} onChange={e=>set("priority",e.target.value)}>
+              <option value="high">Высокий</option><option value="medium">Средний</option><option value="low">Низкий</option>
+            </select>
+          </div>
+          <div className="form-group full"><label>Сайт</label><input value={form.website||""} onChange={e=>set("website",e.target.value)}/></div>
+          <div className="form-group full"><label>Кейс использования</label><input value={form.use_case||""} onChange={e=>set("use_case",e.target.value)}/></div>
+          <div className="form-group"><label>Контактное лицо (ЛПР)</label><input value={form.contact_name||""} onChange={e=>set("contact_name",e.target.value)}/></div>
+          <div className="form-group"><label>Должность</label><input value={form.contact_position||""} onChange={e=>set("contact_position",e.target.value)}/></div>
+          <div className="form-group"><label>Email</label><input value={form.contact_email||""} onChange={e=>set("contact_email",e.target.value)}/></div>
+          <div className="form-group"><label>Телефон</label><input value={form.contact_phone||""} onChange={e=>set("contact_phone",e.target.value)}/></div>
+          <div className="form-group full"><label>LinkedIn</label><input value={form.contact_linkedin||""} onChange={e=>set("contact_linkedin",e.target.value)}/></div>
+          <div className="form-group"><label>Telegram</label><input value={form.contact_telegram||""} onChange={e=>set("contact_telegram",e.target.value)}/></div>
+          <div className="form-group"><label>WhatsApp</label><input value={form.contact_whatsapp||""} onChange={e=>set("contact_whatsapp",e.target.value)}/></div>
+          {tab==="dataset" && <>
+            <div className="form-group"><label>Типы данных (audio,text,video)</label><input value={form.dataset_types||""} onChange={e=>set("dataset_types",e.target.value)}/></div>
+            <div className="form-group"><label>Язык (kz,ru,en)</label><input value={form.dataset_language||""} onChange={e=>set("dataset_language",e.target.value)}/></div>
+          </>}
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-primary" onClick={()=>{if(form.company_name) onAdd(form);}}>Добавить</button>
+          <button className="btn btn-ghost" onClick={onClose}>Отмена</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [tab, setTab] = React.useState("b2b");
+  const [partners, setPartners] = React.useState([]);
+  const [stats, setStats] = React.useState({});
+  const [categories, setCategories] = React.useState([]);
+  const [search, setSearch] = React.useState("");
+  const [filterCat, setFilterCat] = React.useState("");
+  const [filterStatus, setFilterStatus] = React.useState("");
+  const [filterPri, setFilterPri] = React.useState("");
+  const [msgModal, setMsgModal] = React.useState(null);
+  const [editModal, setEditModal] = React.useState(null);
+  const [addModal, setAddModal] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+
+  const fetchAll = React.useCallback(async () => {
+    setLoading(true);
+    const params = new URLSearchParams({partner_type: tab});
+    if (search) params.set("search", search);
+    if (filterCat) params.set("category", filterCat);
+    if (filterStatus) params.set("status", filterStatus);
+    if (filterPri) params.set("priority", filterPri);
+    const [pRes, sRes, cRes] = await Promise.all([
+      fetch(`${API}/api/partners?${params}`),
+      fetch(`${API}/api/stats`),
+      fetch(`${API}/api/categories?partner_type=${tab}`),
+    ]);
+    setPartners(await pRes.json());
+    setStats(await sRes.json());
+    setCategories(await cRes.json());
+    setLoading(false);
+  }, [tab, search, filterCat, filterStatus, filterPri]);
+
+  React.useEffect(() => { fetchAll(); }, [fetchAll]);
+
+  const handleStatus = async (id, status) => {
+    await fetch(`${API}/api/partners/${id}`, {method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status})});
+    fetchAll();
+  };
+
+  const handleSaveEdit = async (id, form) => {
+    await fetch(`${API}/api/partners/${id}`, {method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(form)});
+    setEditModal(null);
+    fetchAll();
+  };
+
+  const handleAdd = async (form) => {
+    await fetch(`${API}/api/partners`, {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(form)});
+    setAddModal(false);
+    fetchAll();
+  };
+
+  return (
+    <>
+      <div className="header">
+        <div style={{fontSize:"28px"}}>🎙️</div>
+        <div>
+          <h1>Freedom Speech — Partner Dashboard</h1>
+          <span>Поиск партнёров для TTS · STT · Voice Cloning</span>
+        </div>
+      </div>
+
+      <StatBar stats={stats}/>
+
+      <div className="tabs">
+        <div className={`tab ${tab==="b2b"?"active":""}`} onClick={()=>{setTab("b2b");setFilterCat("");}}>
+          🤝 B2B Партнёры ({stats.b2b||0})
+        </div>
+        <div className={`tab ${tab==="dataset"?"active":""}`} onClick={()=>{setTab("dataset");setFilterCat("");}}>
+          🗂️ Датасеты ({stats.dataset||0})
+        </div>
+      </div>
+
+      <div className="controls">
+        <input className="search" placeholder="🔍 Поиск по названию..." value={search} onChange={e=>setSearch(e.target.value)}/>
+        <select value={filterCat} onChange={e=>setFilterCat(e.target.value)}>
+          <option value="">Все категории</option>
+          {categories.map(c=><option key={c} value={c}>{c}</option>)}
+        </select>
+        <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}>
+          <option value="">Все статусы</option>
+          {Object.entries(STATUS_LABELS).map(([k,v])=><option key={k} value={k}>{v}</option>)}
+        </select>
+        <select value={filterPri} onChange={e=>setFilterPri(e.target.value)}>
+          <option value="">Все приоритеты</option>
+          <option value="high">🔴 Высокий</option>
+          <option value="medium">🟠 Средний</option>
+          <option value="low">🟢 Низкий</option>
+        </select>
+        <button className="btn btn-primary" onClick={()=>setAddModal(true)}>➕ Добавить</button>
+        <button className="btn btn-ghost" onClick={fetchAll}>🔄 Обновить</button>
+      </div>
+
+      {loading && <div className="empty">Загрузка...</div>}
+
+      {!loading && partners.length === 0 && (
+        <div className="empty">
+          <div style={{fontSize:"48px",marginBottom:"12px"}}>🔍</div>
+          <div>Партнёры не найдены</div>
+        </div>
+      )}
+
+      <div className="grid">
+        {partners.map(p => (
+          <PartnerCard
+            key={p.id}
+            p={p}
+            onStatusChange={handleStatus}
+            onViewMsg={setMsgModal}
+            onEdit={setEditModal}
+          />
+        ))}
+      </div>
+
+      {msgModal && <MessageModal partner={msgModal} onClose={()=>setMsgModal(null)}/>}
+      {editModal && <EditModal partner={editModal} onClose={()=>setEditModal(null)} onSave={handleSaveEdit}/>}
+      {addModal && (
+        <AddModal
+          tab={tab}
+          categories={categories}
+          onClose={()=>setAddModal(false)}
+          onAdd={handleAdd}
+        />
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
