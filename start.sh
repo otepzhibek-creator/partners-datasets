@@ -15,7 +15,7 @@ else
 fi
 
 # Check version >= 3.10
-PY_VER=$($PY -c "import sys; print(sys.version_info.major * 10 + sys.version_info.minor)")
+PY_VER=$($PY -c "import sys; print(sys.version_info.major * 100 + sys.version_info.minor)")
 if [ "$PY_VER" -lt 310 ]; then
   echo "❌ Нужен Python 3.10+. У вас: $($PY --version)"
   exit 1
